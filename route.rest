@@ -1,0 +1,13 @@
+GET http://localhost:5000/islands
+
+###
+
+GET http://localhost:5000/islands/16
+
+###
+
+GET http://localhost:5000/islands/bounties
+
+###
+
+GET http://localhost:5000/islands/fundraisers
