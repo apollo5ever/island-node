@@ -23,7 +23,7 @@ app.use(express.json())
 
 const islandsRouter = require('./routes/islands');
 const store = require('./functions/store');
-app.use('/islands',islandsRouter)
+app.use('/api/islands',islandsRouter)
 
 
 
