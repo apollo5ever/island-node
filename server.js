@@ -28,8 +28,8 @@ app.use('/islands',islandsRouter)
 
 
 
+setInterval(getData,100000)
 
-getData()
 
 
 
