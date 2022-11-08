@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Island = require('../models/island')
+const makeIntegrated = require('../functions/makeIntegrated')
 
 // Getting all
 router.get('/', async (req, res) => {
@@ -47,6 +48,11 @@ router.get('/fundraisers', async (req, res) =>{
 //Getting One
 router.get('/:id', (req,res) => {
 res.send(req.params.id)
+})
+
+//make integrated address
+router.get('/integrate/:address/:tier',makeIntegrated,(req,res,next)=>{
+       res.json()
 })
 
 

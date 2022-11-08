@@ -1,13 +1,17 @@
-GET http://localhost:5000/islands
+GET http://localhost:5000/api/islands
 
 ###
 
-GET http://localhost:5000/islands/16
+GET http://localhost:5000/api/islands/16
 
 ###
 
-GET http://localhost:5000/islands/bounties
+GET http://localhost:5000/api/islands/bounties
 
 ###
 
 GET http://localhost:5000/islands/fundraisers
+
+###
+
+GET http://localhost:5000/api/islands/integrate/dero1qyczef08vznftr9w4dg6f4ejracm4wuemq8hyczqudxn8y8h8w6evqgdqnncr/apollo0
