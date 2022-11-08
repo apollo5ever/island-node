@@ -1,3 +1,4 @@
+//require('dotenv').config()
 const fetch = require('node-fetch-commonjs');
 const store = require('./store')
 
@@ -10,6 +11,7 @@ function hex2a(hex){
     
 }
 
+let auth = "Basic " + Buffer.from(`${process.env.LOGIN}:${process.env.PASS}`).toString('base64')
 
 
 
@@ -43,14 +45,19 @@ function hex2a(hex){
 
  console.log('integrate',req.params.address)
  console.log(data)
- const result = await fetch(`http://localhost:10103/json_rpc`, {
+
+try{ 
+  const result = await fetch(`http://localhost:10103/json_rpc`, {
       method: 'POST',
       body: data,
-      headers: {'Content-Type': 'application/json' }
+      headers: {'Content-Type': 'application/json' ,'Authorization':auth}
     })
     const body = await result.json()
     const address = body.result.integrated_address
     res.send({"address":address})
+  }catch{
+    res.send({"address":"error"})
+  }
   
   }
 module.exports = makeIntegrated
