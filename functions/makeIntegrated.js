@@ -18,7 +18,9 @@ let auth = "Basic " + Buffer.from(`${process.env.LOGIN}:${process.env.PASS}`).to
 
   
   async function makeIntegrated(req,res,next){
-    const data = JSON.stringify({
+    var data
+    if(req.params.type=="sub"){  
+       data = JSON.stringify({
       "jsonrpc": "2.0",
       "id": "1",
       "method": "MakeIntegratedAddress",
@@ -42,9 +44,38 @@ let auth = "Basic " + Buffer.from(`${process.env.LOGIN}:${process.env.PASS}`).to
           ]
       }
     });
+  }
+    else if(req.params.type=="topup"){
+       data = JSON.stringify({
+        "jsonrpc": "2.0",
+        "id": "1",
+        "method": "MakeIntegratedAddress",
+        "params": {
+          "payload_rpc": [
+            {
+              "name":"D",
+              "datatype":"U",
+              "value":2
+            },
+                {
+                    "name": "address",
+                    "datatype": "S",
+                    "value": req.params.address
+                },
+                {
+                    "name": "tier",
+                    "datatype":"S",
+                    "value":req.params.tier
+                }
+            ]
+        }
+      });
 
- console.log('integrate',req.params.address)
- console.log(data)
+    }else{
+      res.send({"address":"error"})
+    }
+
+ 
 
 try{ 
   const result = await fetch(`http://localhost:10103/json_rpc`, {
