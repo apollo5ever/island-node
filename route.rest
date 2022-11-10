@@ -14,4 +14,4 @@ GET http://localhost:5000/islands/fundraisers
 
 ###
 
-GET http://privateislands.fund:5000/api/islands/integrate/dero1qyczef08vznftr9w4dg6f4ejracm4wuemq8hyczqudxn8y8h8w6evqgdqnncr/apollo0
+GET http://localhost:5000/api/islands/integrate/sub/dero1qyczef08vznftr9w4dg6f4ejracm4wuemq8hyczqudxn8y8h8w6evqgdqnncr/apollo0

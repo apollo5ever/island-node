@@ -51,7 +51,7 @@ res.send(req.params.id)
 })
 
 //make integrated address
-router.get('/integrate/:type/:address/:tier',makeIntegrated,(req,res,next)=>{
+router.get('/integrate/:address/:tier',makeIntegrated,(req,res,next)=>{
        res.json()
 })
 
