@@ -34,22 +34,50 @@ const data = JSON.stringify({
       headers: {'Content-Type': 'application/json' }
     }).then(res => res.json())
     .then((json) => {
-          var search= /.*_M\b|.*_\d*bm\b|.*_\d*sm\b/
+          var islandSearch= /.*_M\b/
   
-          console.log("search",search)
+          
           var scData = json.result.stringkeys 
           newcidList= Object.keys(scData)
-          .filter(key => search.test(key))
-          .map(key=>hex2a(scData[key]))
+          .filter(key => islandSearch.test(key))
+          .map(key=>[key.substring(0,key.length-3),hex2a(scData[key])])
           console.log(newcidList)
           
+          var fundraiserSearch = /.*_\d*sm\b/
+          signalList = Object.keys(scData)
+          .filter(key=>fundraiserSearch.test(key))
+          .map(key=>[key.substring(0,key.length-4),hex2a(scData[key])])
+
+          for(var i=0; i<signalList.length;i++){
+            let island = signalList[i][0]
+            console.log(island)
+            fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${signalList[i][1]}`,{
+              method: 'POST'
+          })
+          store(signalList[i][1],island,"fundraiser")
+          }
+
+          var bountySearch = /.*_\d*bm\b/
+          treasureList = Object.keys(scData)
+          .filter(key=>bountySearch.test(key))
+          .map(key=>[key.substring(0,key.length-4),hex2a(scData[key])])
+
+          for(var i=0; i<treasureList.length;i++){
+            let island = treasureList[i][0]
+            console.log(island)
+            fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${treasureList[i][1]}`,{
+              method: 'POST'
+          })
+          store(treasureList[i][1],island,"bounty")
+          }
   
 
   for(var i=0; i<newcidList.length; i++){
-    fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${newcidList[i]}`,{
+    let island = newcidList[i][0]
+    fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${newcidList[i][1]}`,{
         method: 'POST'
     })
-    store(newcidList[i])
+    store(newcidList[i][1],island,"island")
   }
 
   })

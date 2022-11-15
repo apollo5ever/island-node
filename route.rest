@@ -10,7 +10,7 @@ GET http://localhost:5000/api/islands/bounties
 
 ###
 
-GET http://localhost:5000/islands/fundraisers
+GET http://localhost:5000/api/islands/fundraisers
 
 ###
 

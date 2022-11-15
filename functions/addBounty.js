@@ -1,7 +1,7 @@
 const Island = require('../models/island')
 
-async function AddBounty(bounty){
-    const existing = await Island.find({name:bounty.island})
+async function AddBounty(bounty,island){
+    const existing = await Island.find({name:island})
     
     if(existing.length==1){
         if(existing[0].bounties.length<=bounty.index){

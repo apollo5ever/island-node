@@ -1,7 +1,7 @@
 const Island = require('../models/island')
 
-async function AddFundraiser(fundraiser){
-    const existing = await Island.find({name:fundraiser.island})
+async function AddFundraiser(fundraiser,island){
+    const existing = await Island.find({name:island})
     
     if(existing.length==1){
         
