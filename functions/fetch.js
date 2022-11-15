@@ -46,29 +46,31 @@ const data = JSON.stringify({
           var fundraiserSearch = /.*_\d*sm\b/
           signalList = Object.keys(scData)
           .filter(key=>fundraiserSearch.test(key))
-          .map(key=>[key.substring(0,key.length-4),hex2a(scData[key])])
+          .map(key=>[key.substring(0,key.length-4),hex2a(scData[key]),key.charAt(key.length-4)])
 
           for(var i=0; i<signalList.length;i++){
             let island = signalList[i][0]
+            let index = signalList[i][2]
             console.log(island)
             fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${signalList[i][1]}`,{
               method: 'POST'
           })
-          store(signalList[i][1],island,"fundraiser")
+          store(signalList[i][1],island,"fundraiser",index)
           }
 
           var bountySearch = /.*_\d*bm\b/
           treasureList = Object.keys(scData)
           .filter(key=>bountySearch.test(key))
-          .map(key=>[key.substring(0,key.length-4),hex2a(scData[key])])
+          .map(key=>[key.substring(0,key.length-4),hex2a(scData[key]),key.charAt(key.length-4)])
 
           for(var i=0; i<treasureList.length;i++){
             let island = treasureList[i][0]
+            let index = treasureList[i][2]
             console.log(island)
             fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${treasureList[i][1]}`,{
               method: 'POST'
           })
-          store(treasureList[i][1],island,"bounty")
+          store(treasureList[i][1],island,"bounty",index)
           }
   
 

@@ -6,11 +6,11 @@ GET http://localhost:5000/api/islands/16
 
 ###
 
-GET http://localhost:5000/api/islands/bounties
+GET http://privateislands.fund:5000/api/islands
 
 ###
 
-GET http://localhost:5000/api/islands/fundraisers
+GET http://privateislands.fund:5000/api/islands/fundraisers
 
 ###
 

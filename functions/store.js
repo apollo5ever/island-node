@@ -14,7 +14,7 @@ function hex2a(hex){
 
 
   
-  async function store(cid,island,type){
+  async function store(cid,island,type,index){
   const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${cid}`,{
       method: 'POST'
   
@@ -23,10 +23,10 @@ function hex2a(hex){
   const data = await response.json()
   console.log("data",data)
   if(type=="bounty"){
-    AddBounty(data,island)
+    AddBounty(data,island,index)
   }
   else if(type=="fundraiser"){
-    AddFundraiser(data,island)
+    AddFundraiser(data,island,index)
   }
   else{
     AddIsland(data)
