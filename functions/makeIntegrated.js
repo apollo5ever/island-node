@@ -49,15 +49,19 @@ let auth = "Basic " + Buffer.from(`${process.env.LOGIN}:${process.env.PASS}`).to
  
 
 try{ 
+console.log("trying",auth)
+console.log(process.env.LOGIN,":",process.env.PASS)
   const result = await fetch(`http://localhost:10103/json_rpc`, {
       method: 'POST',
       body: data,
       headers: {'Content-Type': 'application/json' ,'Authorization':auth}
     })
+	console.log(result)
     const body = await result.json()
     const address = body.result.integrated_address
     res.send({"address":address})
   }catch{
+    console.log("auth",auth)
     res.send({"address":"error"})
   }
   

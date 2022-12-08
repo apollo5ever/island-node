@@ -9,7 +9,7 @@ const cors = require('cors')
 
 
 
-mongoose.connect('mongodb://localhost/islands')
+mongoose.connect('mongodb://127.0.0.1/islands')
 const db = mongoose.connection
 db.on('error', (error) => console.error(error))
 db.once('open', ()=> console.log('Conencted to databagse'))

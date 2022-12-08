@@ -5,6 +5,7 @@ async function AddFundraiser(fundraiser,island,index){
     
     if(existing.length==1){
         if(existing[0].fundraisers.length<=index){
+	fundraiser.island=island
         existing[0].fundraisers.push(fundraiser)
         existing[0].save()
         }
