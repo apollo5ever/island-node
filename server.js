@@ -6,6 +6,16 @@ const mongoose = require('mongoose')
 const AddIsland = require('./functions/addIsland')
 const getData = require('./functions/fetch')
 const cors = require('cors')
+const fs = require('fs');
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({name: "island-node-crash"});
+
+process.on('uncaughtException', (err) => {
+    log.error(err, 'uncaughtException');
+    fs.writeSync(1, `Caught exception: ${err}\n`);
+    process.exit(1);
+});
+
 
 
 
