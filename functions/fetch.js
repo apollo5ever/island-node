@@ -28,7 +28,7 @@ const data = JSON.stringify({
     let newcidList=[]
     let treasureList=[]
     let signalList=[]
-  fetch(`http://147.182.177.142:9999/json_rpc`, {
+  fetch(`https://dero-api.mysrv.cloud/json_rpc`, {
       method: 'POST',
       body: data,
       headers: {'Content-Type': 'application/json' }
