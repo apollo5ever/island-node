@@ -33,6 +33,7 @@ async function parseIslands (req,res,next) {
             island.bio = data.bio
             island.image = data.image
             island.tiers = data.tiers
+            island.tagline = data.tagline
             
         }
         for(let j =0; j<island.tiers.length; j++){

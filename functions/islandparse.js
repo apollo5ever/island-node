@@ -29,6 +29,7 @@ async function parseIsland (req,res,next) {
             island.bio = data.bio
             island.image = data.image
             island.tiers = data.tiers
+            island.tagline = data.tagline
             
             
         }
@@ -65,6 +66,29 @@ async function parseIsland (req,res,next) {
             }
                 island.bounties[i].treasure = scData[`${name+i}_T`]
                 island.bounties[i].expiry = scData[`${name+i}_E`]
+                island.bounties[i].XN = scData[`${name+i}_XN`]
+                island.bounties[i].XT = scData[`${name+i}_XT`]
+                island.bounties[i].X = hex2a(scData[`${name+i}_X`])
+                island.bounties[i].JN = scData[`${name+i}_JN`]
+                island.bounties[i].JT = scData[`${name+i}_JT`]
+                island.bounties[i].J = hex2a(scData[`${name+i}_J`])
+                let w = 0
+                let eList = []
+                while(scData[`${name+i}_X${w}`]){
+                    island.bounties[i][`X${w}`] = hex2a(scData[`${name+i}_X${w}`])
+                    eList.push(hex2a(scData[`${name+i}_J${w}`]))
+                    w++
+                }
+                island.bounties[i].executerList = eList
+
+                let g = 0
+                let jList = []
+                while(scData[`${name+i}_J${g}`]){
+                    island.bounties[i][`J${g}`] = hex2a(scData[`${name+i}_J${g}`])
+                    jList.push(hex2a(scData[`${name+i}_J${g}`]))
+                    g++
+                }
+                island.bounties[i].judgeList = jList
                 //etc
             
          
