@@ -2,16 +2,14 @@ const express = require('express')
 const router = express.Router()
 const Island = require('../models/island')
 const makeIntegrated = require('../functions/makeIntegrated')
+const parseIsland = require('../functions/islandparse')
+const getSC = require('../functions/getSC')
+const parseIslands = require('../functions/islandparsemulti')
+
 
 // Getting all
-router.get('/', async (req, res) => {
-    try {
-        const islands = await Island.find()
-        res.json(islands)
-    }
-    catch (err){
-        res.status(500).json({message:err.message})
-    }
+router.get('/',getSC,parseIslands, async (req, res) => {
+   res.json()
 })
 
 // Getting all bounties
@@ -46,8 +44,10 @@ router.get('/fundraisers', async (req, res) =>{
 })
 
 //Getting One
-router.get('/:id', (req,res) => {
-res.send(req.params.id)
+router.get('/:name', getSC,parseIsland,(req,res,next) => {
+res.json()
+
+
 })
 
 //make integrated address

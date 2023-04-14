@@ -31,6 +31,11 @@ const islandSchema = new mongoose.Schema({
         type:Array,
         required: true,
         default:[]
+    },
+    M: {
+        type: String,
+        required: true,
+        default:""
     }
 })
 

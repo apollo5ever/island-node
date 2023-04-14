@@ -39,7 +39,7 @@ app.use('/api/islands',islandsRouter)
 
 
 
-setInterval(getData,100000)
+//setInterval(getData,100000)
 
 
 

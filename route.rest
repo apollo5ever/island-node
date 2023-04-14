@@ -2,7 +2,7 @@ GET http://localhost:5000/api/islands
 
 ###
 
-GET http://localhost:5000/api/islands/16
+GET http://localhost:5000/api/islands/apollo
 
 ###
 
