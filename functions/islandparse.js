@@ -72,6 +72,10 @@ async function parseIsland (req,res,next) {
                 island.bounties[i].JN = scData[`${name+i}_JN`]
                 island.bounties[i].JT = scData[`${name+i}_JT`]
                 island.bounties[i].J = hex2a(scData[`${name+i}_J`])
+                island.bounties[i].JF = scData[`${name+i}_JF`]
+                if(island.bounties[i].expiry> new Date().getTime()/1000 && island.bounties[i].JF!=2) island.bounties[i].status=0
+                else if(island.bounties[i].JF==2) island.bounties[i].status=1
+                else if(island.bounties[i].expiry<new Date().getTime()/1000&&island.bounties[i].JF!=2) island.bounties[i].status=2
                 let w = 0
                 let eList = []
                 while(scData[`${name+i}_X${w}`]){
