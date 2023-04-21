@@ -68,11 +68,11 @@ async function parseIsland (req,res,next) {
                 island.bounties[i].expiry = scData[`${name+i}_E`]
                 island.bounties[i].XN = scData[`${name+i}_XN`]
                 island.bounties[i].XT = scData[`${name+i}_XT`]
-                island.bounties[i].X = hex2a(scData[`${name+i}_X`])
+                if(scData[`${name+i}_X`]) island.bounties[i].X = hex2a(scData[`${name+i}_X`])
                 island.bounties[i].JN = scData[`${name+i}_JN`]
                 island.bounties[i].JT = scData[`${name+i}_JT`]
-                island.bounties[i].J = hex2a(scData[`${name+i}_J`])
-                island.bounties[i].JF = scData[`${name+i}_JF`]
+                if(scData[`${name+i}_J`])  island.bounties[i].J = hex2a(scData[`${name+i}_J`])
+                if(scData[`${name+i}_JF`])  island.bounties[i].JF = scData[`${name+i}_JF`]
                 if(island.bounties[i].expiry> new Date().getTime()/1000 && island.bounties[i].JF!=2) island.bounties[i].status=0
                 else if(island.bounties[i].JF==2) island.bounties[i].status=1
                 else if(island.bounties[i].expiry<new Date().getTime()/1000&&island.bounties[i].JF!=2) island.bounties[i].status=2

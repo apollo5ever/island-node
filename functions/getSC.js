@@ -29,6 +29,7 @@ const data = JSON.stringify({
         .filter(key => islandSearch.test(key))
         .map(key => key.substring(0, key.length - 2))
       req.scData = scData
+      console.log(scData)
       next()
   
     } catch (err) {
