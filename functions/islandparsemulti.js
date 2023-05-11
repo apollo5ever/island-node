@@ -7,20 +7,23 @@ async function parseIslands (req,res,next) {
     let islands = []
     let names = req.names
     console.log("names",names)
+    console.log("islands",islands)
     let scData = req.scData
-    for(let q = 0; q<names.length; q++){
-    let name = names[q]
-    let island = await Island.findOne({ name: name });
+    for(let q = 0; q<req.islands.length; q++){
+        console.log("q",q,req.islands.length)
+    let name = req.islands[q].name
+    let scid = req.islands[q].scid
+    let island = await Island.findOne({ scid: scid });
     let exists = true
     if(!island){
         console.log("no island found")
-         island = new Island({name:name})
+         island = new Island({scid:scid,name:name})
          exists = false
 
     }
-        if(hex2a(scData[`${name}_M`]) != island.M){
+        if(req.islands[q].M != island.M){
             console.log("island?",island)
-            island.M = hex2a(scData[`${name}_M`])
+            island.M = req.islands[q].M
             // pull from ipfs
             const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${island.M}`,{
                 method: 'POST'
@@ -32,25 +35,27 @@ async function parseIslands (req,res,next) {
             //update island.bio etc
             island.bio = data.bio
             island.image = data.image
-            island.tiers = data.tiers
             island.tagline = data.tagline
             
         }
-        for(let j =0; j<island.tiers.length; j++){
+        // old way of getting subs data. new way needs new contract
+      /*   for(let j =0; j<island.tiers.length; j++){
             island.tiers[j].available = scData[`${name+j}_Av`]
             island.tiers[j].amount = scData[`${name+j}_Am`]
             island.tiers[j].address = scData[`${name+j}_Ad`]
             island.tiers[j].interval = scData[`${name+j}_I`]
             island.tiers[j].island=name
-        }
+        } */
         let i = 0;
-        while (scData[`${name+i}_bm`]) {
+        console.log("i reset??")
+        while (req.bounties[`${island.scid+i}_bm`]) {
+            console.log("i",i,"bm",hex2a(req.bounties[`${island.scid+i}_bm`]),"length",island.bounties.length)
             if(i>=island.bounties.length){
                 //pull from ipfs
-                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(scData[`${name+i}_bm`])}`,{
+                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
               method: 'POST'
           })
-          const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(scData[`${name+i}_bm`])}`,{
+          const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
             method: 'POST'
         
         })
@@ -58,7 +63,7 @@ async function parseIslands (req,res,next) {
         const data = await response.json()
         console.log("bounty data",data)
                 island.bounties.push(new Object({
-                    "bm":hex2a(scData[`${name+i}_bm`]),
+                    "bm":hex2a(req.bounties[`${island.scid+i}_bm`]),
                     "name":data.name,
                     "tagline": data.tagline,
                     "description":data.description,
@@ -67,29 +72,67 @@ async function parseIslands (req,res,next) {
                     "island":name
                 }))
             }
-                island.bounties[i].treasure = scData[`${name+i}_T`]
-                island.bounties[i].expiry = scData[`${name+i}_E`]
+                island.bounties[i].treasure = req.bounties[`${island.scid+i}_T`]
+                island.bounties[i].expiry = req.bounties[`${island.scid+i}_E`]
                 //etc
-            
+                console.log("hello",i)
+                i=i+1
+                console.log("goobye",i)
          
-          i++;
+          
         }
 
-        let k = 0;
-        while (scData[`${name+k}_sm`]) {
+        let j = 0;
+        
+        while (req.subscriptions[`${island.scid+j}_m`]) {
+            console.log("getting subscriptions",req.subscriptions)
+            
+                //pull from ipfs
+                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
+              method: 'POST'
+          })
+          const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
+            method: 'POST'
+        
+        })
+        
+        const data = await response.json()
+        console.log("tier data",data)
+        if(j>=island.tiers.length){
+                island.tiers.push(new Object())
+            }
+              island.tiers[j].m = hex2a(req.subscriptions[`${island.scid+j}_m`])
+                island.tiers[j].name = data.name
+                island.tiers[j].perks = data.perks
+                island.tiers[j].image = data.image
+                island.tiers[j].posts = data.posts
+                island.tiers[j].subs = data.subs
+                island.tiers[j].island = name
+                island.tiers[j].amount = req.subscriptions[`${island.scid+j}_Am`]
+                island.tiers[j].interval = req.subscriptions[`${island.scid+j}_I`]
+                //etc
+                
+               j++
+                
+         
+          
+        }
+
+         let k = 0;
+        while (req.fundraisers[`${island.scid+k}_sm`]) {
             if(k>=island.fundraisers.length){
                 //pull from ipfs
-                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(scData[`${name+k}_sm`])}`,{
+                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
                     method: 'POST'
                 })
-                const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(scData[`${name+k}_sm`])}`,{
+                const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
                   method: 'POST'
               
               })
               
               const data = await response.json()
                 island.fundraisers.push(new Object({
-                    "sm":hex2a(scData[`${name+k}_sm`]),
+                    "sm":hex2a(req.fundraisers[`${island.scid+k}_sm`]),
                     "name":data.name,
                     "tagline":data.tagline,
                     "index":k,
@@ -98,15 +141,15 @@ async function parseIslands (req,res,next) {
                     "island":name
                 }))
             }
-                island.fundraisers[k].goal = scData[`${name+k}_G`]
-                island.fundraisers[k].deadline = scData[`${name+k}_D`]
-                island.fundraisers[k].address = scData[`${name+k}_F`]
-                island.fundraisers[k].raised = scData[`${name+k}_R`]
+                island.fundraisers[k].goal = req.fundraisers[`${island.scid+k}_G`]
+                island.fundraisers[k].deadline = req.fundraisers[`${island.scid+k}_D`]
+                island.fundraisers[k].address = req.fundraisers[`${island.scid+k}_F`]
+                island.fundraisers[k].raised = req.fundraisers[`${island.scid+k}_R`]
                 //etc
             
          
           k++;
-        }
+        } 
         if(exists){
             await Island.updateOne({ name: name }, { $set: island });
         }

@@ -5,6 +5,10 @@ const islandSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    scid: {
+        type: String,
+        require: true
+    },
     tagline: {
         type: String,
         required: false
