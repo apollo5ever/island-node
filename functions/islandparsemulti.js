@@ -21,13 +21,17 @@ async function parseIslands (req,res,next) {
          exists = false
 
     }
-        if(req.islands[q].M != island.M){
+        if(req.islands[q].M && req.islands[q].M != island.M){
             console.log("island?",island)
+            console.log("contract m",req.islands[q].M)
             island.M = req.islands[q].M
             // pull from ipfs
-            const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${island.M}`,{
+           /*  const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${island.M}`,{
                 method: 'POST'
             
+            }) */
+            const response = await fetch(`https://gateway.pinata.cloud/ipfs/${island.M}`,{
+                method: 'GET'
             })
             
             const data = await response.json()
@@ -55,10 +59,14 @@ async function parseIslands (req,res,next) {
                 fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
               method: 'POST'
           })
-          const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
+         /*  const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
             method: 'POST'
         
-        })
+        }) */
+       
+              const response = await fetch(`https://gateway.pinata.cloud/ipfs/${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
+                method: 'GET'
+            })
         
         const data = await response.json()
         console.log("bounty data",data)
@@ -69,11 +77,107 @@ async function parseIslands (req,res,next) {
                     "description":data.description,
                     "image":data.image,
                     "index":i,
-                    "island":name
+                    "island":name,
+                    "judgeList":[],
+                    "execList":[]
                 }))
             }
                 island.bounties[i].treasure = req.bounties[`${island.scid+i}_T`]
                 island.bounties[i].expiry = req.bounties[`${island.scid+i}_E`]
+                island.bounties[i].JN = req.bounties[`${island.scid+i}_JN`]
+                island.bounties[i].JT = req.bounties[`${island.scid+i}_JT`]
+                island.bounties[i].JE = req.bounties[`${island.scid+i}_JE`]
+                island.bounties[i].XN = req.bounties[`${island.scid+i}_XN`]
+                island.bounties[i].XT = req.bounties[`${island.scid+i}_XT`]
+                island.bounties[i].XE = req.bounties[`${island.scid+i}_XE`]
+                island.bounties[i].JF = req.bounties[`${island.scid+i}_JF`]
+                island.bounties[i].judgeAddress = req.bounties[`${island.scid+i}_J_address`]
+                island.bounties[i].execAddress = req.bounties[`${island.scid+i}_X_address`]
+                island.bounties[i].recipientList = []
+                //get confirmed executer
+                if(req.bounties[`${island.scid+i}_X`]){
+                    island.bounties[i].executer = new Object(
+                        {
+                            "name": "unregistered asset",
+                            "scid":hex2a(req.bounties[`${island.scid+i}_X`])
+                        }
+                    )
+                    if(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_X`])}`]){
+                        island.bounties[i].executer.name = hex2a(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_X`])}`])
+                    }
+                }
+                 //get confirmed judge
+            if(req.bounties[`${island.scid+i}_J`]){
+                island.bounties[i].judge = new Object(
+                    {
+                        "name": "unregistered asset",
+                        "scid":hex2a(req.bounties[`${island.scid+i}_J`])
+                    }
+                )
+                if(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_J`])}`]){
+                    island.bounties[i].judge.name = hex2a(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_J`])}`])
+                }
+            }
+                  //fetch effective XN
+            island.bounties[i].XNeff= parseInt((island.bounties[i].XN + 1+(new Date().getTime()/1000 - island.bounties[i].XE)/1209600)%island.bounties[i].XT)
+
+            //fetch effect XE
+            if(new Date().getTime()/1000>island.bounties[i].XE)
+            {island.bounties[i].XEeff = Math.round(1209600-(new Date().getTime()/1000-island.bounties[i].XE)%1209600)
+           }else island.bounties[i].XEeff = Math.round(island.bounties[i].XE-new Date().getTime()/1000)
+
+           //fetch effective JN
+           island.bounties[i].JNeff= parseInt((island.bounties[i].JN + 1+(new Date().getTime()/1000 - island.bounties[i].JE)/1209600)%island.bounties[i].JT)
+
+           //fetch effect JE
+           if(new Date().getTime()/1000>island.bounties[i].JE)
+           {island.bounties[i].JEeff = Math.round(1209600-(new Date().getTime()/1000-island.bounties[i].JE)%1209600)
+          }else island.bounties[i].JEeff = Math.round(island.bounties[i].JE-new Date().getTime()/1000)
+
+                //get status
+                if(island.bounties[i].expiry< new Date().getTime()/1000){
+                    //bounty is expired
+                    if(island.bounties[i].JF ==1){
+                        //treasure was released
+                        island.bounties[i].status = 1
+                    }
+                    else island.bounties[i].status = 2
+                }else island.bounties[i].status =0
+                
+                //fetch judgeList
+                for(let w=0;w<island.bounties[i].JT;w++){
+                    island.bounties[i].judgeList[w]=new Object(
+                        {
+                            "scid":hex2a(req.bounties[`${island.scid+i}_J${w}`]),
+                            "name":"unregistered asset"
+                        }
+                    )
+                    if(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_J${w}`])}`]){
+                        island.bounties[i].judgeList[w].name= hex2a(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_J${w}`])}`])
+                            
+                    }
+                    
+                }
+
+                //fetch execList
+            for(let w=0;w<island.bounties[i].XT;w++){
+                island.bounties[i].execList[w]=new Object(
+                    {
+                        "scid":hex2a(req.bounties[`${island.scid+i}_X${w}`]),
+                        "name":"unregistered asset"
+                    }
+                )
+                if(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_X${w}`])}`]){
+                    island.bounties[i].execList[w].name=hex2a(req.registry[`N::PRIVATE-ISLANDS::${hex2a(req.bounties[`${island.scid+i}_X${w}`])}`])
+                        
+                }
+            }
+            //fetch treasure recipient list
+            if(req.bounties[`${island.scid+i}_RN`]){
+                for(let h=0;h<req.bounties[`${island.scid+i}_RN`];h++){
+                    island.bounties[i].recipientList.push(new Object({"address":hex2a(req.bounties[`${island.scid+i}_R_${h}`]),"weight":req.bounties[`${island.scid+i}_W_${h}`]}))
+                }
+            }
                 //etc
                 console.log("hello",i)
                 i=i+1
@@ -86,15 +190,19 @@ async function parseIslands (req,res,next) {
         
         while (req.subscriptions[`${island.scid+j}_m`]) {
             console.log("getting subscriptions",req.subscriptions)
+            console.log("fetch: ",hex2a(req.subscriptions[`${island.scid+j}_m`]))
             
                 //pull from ipfs
-                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
+              /*   fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
               method: 'POST'
-          })
-          const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
+          }) */
+          /* const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
             method: 'POST'
         
-        })
+        }) */
+        const response = await fetch(`https://gateway.pinata.cloud/ipfs/${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
+                method: 'GET'
+            })
         
         const data = await response.json()
         console.log("tier data",data)
@@ -110,6 +218,15 @@ async function parseIslands (req,res,next) {
                 island.tiers[j].island = name
                 island.tiers[j].amount = req.subscriptions[`${island.scid+j}_Am`]
                 island.tiers[j].interval = req.subscriptions[`${island.scid+j}_I`]
+                island.tiers[j].available = req.subscriptions[`${island.scid+j}_Av`]
+                island.tiers[j].index = j
+                island.tiers[j].scid = island.scid
+
+                var supporterSearch = new RegExp(`_${island.scid+j}_E`)
+                 island.tiers[j].subs=Object.keys(req.subscriptions)
+                .filter(key=>supporterSearch.test(key))
+                .filter(key=>req.subscriptions[key]> new Date().getTime()/1000)
+                .map(x=>x.substring(0,66))
                 //etc
                 
                j++
@@ -125,10 +242,13 @@ async function parseIslands (req,res,next) {
                 fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
                     method: 'POST'
                 })
-                const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
+               /*  const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
                   method: 'POST'
               
-              })
+              }) */
+              const response = await fetch(`https://gateway.pinata.cloud/ipfs/${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
+                method: 'GET'
+            })
               
               const data = await response.json()
                 island.fundraisers.push(new Object({
@@ -138,7 +258,8 @@ async function parseIslands (req,res,next) {
                     "index":k,
                     "description":data.description,
                     "image":data.image,
-                    "island":name
+                    "island":name,
+                    "scid":island.scid
                 }))
             }
                 island.fundraisers[k].goal = req.fundraisers[`${island.scid+k}_G`]
@@ -154,6 +275,7 @@ async function parseIslands (req,res,next) {
             await Island.updateOne({ name: name }, { $set: island });
         }
         else{
+            console.log("island",island)
             island.save()
         }
         

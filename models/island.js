@@ -39,7 +39,7 @@ const islandSchema = new mongoose.Schema({
     M: {
         type: String,
         required: true,
-        default:""
+        default:"QmbkqhkPEhs7yD4P62hzLRBDwceWihcDouFa6wJtBQ7SdZ"
     }
 })
 
