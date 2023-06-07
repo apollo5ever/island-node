@@ -213,14 +213,14 @@ async function parseIsland (req,res,next) {
                 if(req.subscriptions[`${island.scid+j}_name_${v}`]){
                     island.tiers[j].name = hex2a(req.subscriptions[`${island.scid+j}_name_${v}`])
                 }
-                if(req.fundraisers[`${island.scid+j}_image_${v}`]){
-                    island.tiers[j].image = hex2a(req.fundraisers[`${island.scid+j}_image_${v}`])
+                if(req.subscriptions[`${island.scid+j}_image_${v}`]){
+                    island.tiers[j].image = hex2a(req.subscriptions[`${island.scid+j}_image_${v}`])
                 }
-                if(req.fundraisers[`${island.scid+j}_tagline_${v}`]){
-                    island.tiers[j].tagline = hex2a(req.fundraisers[`${island.scid+j}_tagline_${v}`])
+                if(req.subscriptions[`${island.scid+j}_tagline_${v}`]){
+                    island.tiers[j].tagline = hex2a(req.subscriptions[`${island.scid+j}_tagline_${v}`])
                 }
-                if(req.fundraisers[`${island.scid+j}_desc_${v}`]){
-                    island.tiers[j].description = hex2a(req.fundraisers[`${island.scid+j}_desc_${v}`])
+                if(req.subscriptions[`${island.scid+j}_desc_${v}`]){
+                    island.tiers[j].description = hex2a(req.subscriptions[`${island.scid+j}_desc_${v}`])
                 }
             }
                 
