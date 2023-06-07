@@ -5,6 +5,10 @@ const islandSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    scid: {
+        type: String,
+        require: true
+    },
     tagline: {
         type: String,
         required: false
@@ -32,10 +36,14 @@ const islandSchema = new mongoose.Schema({
         required: true,
         default:[]
     },
-    M: {
+    ipfs: {
         type: String,
-        required: true,
-        default:""
+        required: false
+    },
+    score: {
+        type: Number,
+        required:true,
+        default: 50
     }
 })
 

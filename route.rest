@@ -1,8 +1,8 @@
-GET http://localhost:5000/api/islands
+GET http://localhost:5000/api/islands/Azylem
 
 ###
 
-GET http://localhost:5000/api/islands/apollo
+GET http://localhost:5000/api/islands/fundraisers
 
 ###
 
