@@ -36,10 +36,14 @@ const islandSchema = new mongoose.Schema({
         required: true,
         default:[]
     },
-    M: {
+    ipfs: {
         type: String,
-        required: true,
-        default:"QmbkqhkPEhs7yD4P62hzLRBDwceWihcDouFa6wJtBQ7SdZ"
+        required: false
+    },
+    score: {
+        type: Number,
+        required:true,
+        default: 50
     }
 })
 

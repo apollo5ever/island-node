@@ -18,14 +18,12 @@ async function parseIsland (req,res,next) {
          exists = false
 
     }
-        if(risland.M != island.M){
+
+     /*    if(risland.M != island.M){
             console.log("island?",island)
             island.M = risland.M
-             // pull from ipfs
-           /*  const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${island.M}`,{
-                method: 'POST'
-            
-            }) */
+           
+
             const response = await fetch(`https://gateway.pinata.cloud/ipfs/${island.M}`,{
                 method: 'GET'
             })
@@ -37,7 +35,7 @@ async function parseIsland (req,res,next) {
             island.image = data.image
             island.tagline = data.tagline
             
-        }
+        } */
         // old way of getting subs data. new way needs new contract
       /*   for(let j =0; j<island.tiers.length; j++){
             island.tiers[j].available = scData[`${name+j}_Av`]
@@ -48,11 +46,13 @@ async function parseIsland (req,res,next) {
         } */
         let i = 0;
         console.log("i reset??")
-        while (req.bounties[`${island.scid+i}_bm`]) {
-            console.log("i",i,"bm",hex2a(req.bounties[`${island.scid+i}_bm`]),"length",island.bounties.length)
+        console.log(i,req.bounties[`${island.scid+i}_version`])
+        while (req.bounties[`${island.scid+i}_version`]+1) { //added +1 to make it truthy for verison 0
+            let version = req.bounties[`${island.scid+i}_version`]
+            //console.log("i",i,"bm",hex2a(req.bounties[`${island.scid+i}_bm`]),"length",island.bounties.length)
             if(i>=island.bounties.length){
                 //pull from ipfs
-                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
+            /*     fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
               method: 'POST'
           })
           const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.bounties[`${island.scid+i}_bm`])}`,{
@@ -61,19 +61,33 @@ async function parseIsland (req,res,next) {
         })
         
         const data = await response.json()
-        console.log("bounty data",data)
+        console.log("bounty data",data) */
                 island.bounties.push(new Object({
-                    "bm":hex2a(req.bounties[`${island.scid+i}_bm`]),
-                    "name":data.name,
-                    "tagline": data.tagline,
-                    "description":data.description,
-                    "image":data.image,
+                    "name":hex2a(req.bounties[`${island.scid+i}_name_${version}`]),
                     "index":i,
                     "island":name,
                     "judgeList":[],
                     "execList":[]
                 }))
             }
+
+           
+                for(let v =0;v<=version;v++){
+                    if(req.bounties[`${island.scid+i}_name_${v}`]){
+                        island.bounties[i].name = hex2a(req.bounties[`${island.scid+i}_name_${v}`])
+                    }
+                    if(req.bounties[`${island.scid+i}_image_${v}`]){
+                        island.bounties[i].image = hex2a(req.bounties[`${island.scid+i}_image_${v}`])
+                    }
+                    if(req.bounties[`${island.scid+i}_tagline_${v}`]){
+                        island.bounties[i].tagline = hex2a(req.bounties[`${island.scid+i}_tagline_${v}`])
+                    }
+                    if(req.bounties[`${island.scid+i}_desc_${v}`]){
+                        island.bounties[i].description = hex2a(req.bounties[`${island.scid+i}_desc_${v}`])
+                    }
+                }
+                island.bounties[i].version = version
+            //add tagline, dessc, image here
             island.bounties[i].treasure = req.bounties[`${island.scid+i}_T`]
             island.bounties[i].expiry = req.bounties[`${island.scid+i}_E`]
             island.bounties[i].JN = req.bounties[`${island.scid+i}_JN`]
@@ -181,33 +195,35 @@ async function parseIsland (req,res,next) {
 
         let j = 0;
         
-        while (req.subscriptions[`${island.scid+j}_m`]) {
+        while (req.subscriptions[`${island.scid+j}_version`]+1) {
             console.log("getting subscriptions",req.subscriptions)
-            
-                //pull from ipfs
-              //pull from ipfs
-              /*   fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
-              method: 'POST'
-          }) */
-          /* const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
-            method: 'POST'
-        
-        }) */
-        const response = await fetch(`https://gateway.pinata.cloud/ipfs/${hex2a(req.subscriptions[`${island.scid+j}_m`])}`,{
-            method: 'GET'
-        })
-        
-        const data = await response.json()
-        console.log("tier data",data)
+            let version = req.subscriptions[`${island.scid+j}_version`]
+             
         if(j>=island.tiers.length){
-                island.tiers.push(new Object())
+                island.tiers.push(new Object({
+                    "name": hex2a(req.subscriptions[`${island.scid+j}_name_${version}`]),
+                    "index":j,
+                    "island":name,
+                    "scid":island.scid
+                }))
             }
-              island.tiers[j].m = hex2a(req.subscriptions[`${island.scid+j}_m`])
-                island.tiers[j].name = data.name
-                island.tiers[j].perks = data.perks
-                island.tiers[j].image = data.image
-                island.tiers[j].posts = data.posts
-                island.tiers[j].subs = data.subs
+              
+            for(let v =0;v<=version;v++){
+               
+                if(req.subscriptions[`${island.scid+j}_name_${v}`]){
+                    island.tiers[j].name = hex2a(req.subscriptions[`${island.scid+j}_name_${v}`])
+                }
+                if(req.subscriptions[`${island.scid+j}_image_${v}`]){
+                    island.tiers[j].image = hex2a(req.subscriptions[`${island.scid+j}_image_${v}`])
+                }
+                if(req.subscriptions[`${island.scid+j}_tagline_${v}`]){
+                    island.tiers[j].tagline = hex2a(req.subscriptions[`${island.scid+j}_tagline_${v}`])
+                }
+                if(req.subscriptions[`${island.scid+j}_desc_${v}`]){
+                    island.tiers[j].description = hex2a(req.subscriptions[`${island.scid+j}_desc_${v}`])
+                }
+            }
+                
                 island.tiers[j].island = name
                 island.tiers[j].amount = req.subscriptions[`${island.scid+j}_Am`]
                 island.tiers[j].interval = req.subscriptions[`${island.scid+j}_I`]
@@ -228,44 +244,59 @@ async function parseIsland (req,res,next) {
         }
 
          let k = 0;
-        while (req.fundraisers[`${island.scid+k}_sm`]) {
+        while (req.fundraisers[`${island.scid+k}_version`]+1) {
+            let version = req.fundraisers[`${island.scid+k}_version`]
+            console.log("fund version ",version)
             if(k>=island.fundraisers.length){
-                //pull from ipfs
-                console.log("k",k)
-                fetch(`http://127.0.0.1:5001/api/v0/pin/add?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
-                    method: 'POST'
-                })
-                /*  const response = await fetch(`http://127.0.0.1:5001/api/v0/cat?arg=${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
-                  method: 'POST'
+               
               
-              }) */
-              const response = await fetch(`https://gateway.pinata.cloud/ipfs/${hex2a(req.fundraisers[`${island.scid+k}_sm`])}`,{
-                method: 'GET'
-            })
-              
-              const data = await response.json()
+             
                 island.fundraisers.push(new Object({
-                    "sm":hex2a(req.fundraisers[`${island.scid+k}_sm`]),
-                    "name":data.name,
-                    "tagline":data.tagline,
+                    "name":hex2a(req.fundraisers[`${island.scid+i}_name_${version}`]),
                     "index":k,
-                    "description":data.description,
-                    "image":data.image,
                     "island":name,
                     "scid":island.scid
                 }))
             }
+
+            for(let v =0;v<=version;v++){
+                console.log(`req.fundraisers: ${req.fundraisers}`)
+                console.log(` image version ${v}: ${req.fundraisers[`${island.scid+k}_image_${v}`]}`)
+                if(req.fundraisers[`${island.scid+k}_name_${v}`]){
+                    island.fundraisers[k].name = hex2a(req.fundraisers[`${island.scid+k}_name_${v}`])
+                }
+                if(req.fundraisers[`${island.scid+k}_image_${v}`]){
+                    island.fundraisers[k].image = hex2a(req.fundraisers[`${island.scid+k}_image_${v}`])
+                }
+                if(req.fundraisers[`${island.scid+k}_tagline_${v}`]){
+                    island.fundraisers[k].tagline = hex2a(req.fundraisers[`${island.scid+k}_tagline_${v}`])
+                }
+                if(req.fundraisers[`${island.scid+k}_desc_${v}`]){
+                    island.fundraisers[k].description = hex2a(req.fundraisers[`${island.scid+k}_desc_${v}`])
+                }
+            }
                 island.fundraisers[k].goal = req.fundraisers[`${island.scid+k}_G`]
                 island.fundraisers[k].deadline = req.fundraisers[`${island.scid+k}_D`]
-                island.fundraisers[k].address = req.fundraisers[`${island.scid+k}_F`]
+                island.fundraisers[k].address = hex2a(req.fundraisers[`${island.scid+k}_F`])
                 island.fundraisers[k].raised = req.fundraisers[`${island.scid+k}_R`]
                 //etc
             
          
           k++;
         } 
+        //SOCIAL COCONUT SCORE
+        ratingSearch = new RegExp(`RATING::PRIVATE-ISLANDS::${island.scid}::`)
+        let ratings = Object.keys(req.registry)
+        .filter(key=>ratingSearch.test(key))
+        let score = 0
+        for(r of ratings){
+            score += Math.min(100,req.registry[r]) 
+        }
+        score = score/ratings.length
+        island.score = score
+        console.log("RATINGS: ",ratings,score)
         if(exists){
-            await Island.updateOne({ name: name }, { $set: island });
+            await Island.updateOne({ scid: scid }, { $set: island });
         }
         else{
             island.save()
